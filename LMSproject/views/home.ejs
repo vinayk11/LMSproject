@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html ng-app="leaveApp">
+  <head>
+    <title> Leave management System</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"/>
+     <link rel="stylesheet" href="stylesheets/jquery-ui.css">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/employeeController.js"></script>
+	<script src="js/jquery.js"></script>
+  	<script src="js/jquery-ui.js"></script>
+	<script>
+	var userEmail = "<%=  userId %>";
+		$(function() {
+		   $( "#datepickerFrom" ).datepicker();
+		   $( "#datepickerTo" ).datepicker();
+		    $( "#datepickerFrom1" ).datepicker();
+		   $( "#datepickerTo1" ).datepicker();
+		   
+		});
+	</script>
+  </head>	
+  <body >
+  
+  	<div class="container header">
+  		<img src="/images/logo3.png" style="margin-left: 13%;"><span style="border-left: 1px solid #AA9B9B;padding: 20px;"></span>
+  		<h1 class="h1style">Leave Management System</h1>
+  		<div style="margin-right: 1%;">
+	  		<div class="hdrname"><a><%= userId %> </a></div>
+	  		<div style="float:right" class="btn	logout"><a class="algout" href="/logout"><span class="glyphicon glyphicon-log-out">Logout</span></a></div>
+  		</div>
+	</div>
+	
+	<div class="container navleft" ng-controller="navController">
+		<ul class="nav nav-pills nav-stacked navul">
+		  <li class="active ld"><a href="#">Leave Details</a></li>
+		  <li class="libgclr al"><a href="#">Apply Leave</a></li>
+		  <li class="libgclr cl"><a href="#">Cancel Leave</a></li>
+		  <li class="libgclr apl"><a href="#">Approve Leave</a></li>
+		  <li class="libgclr ne"><a href="#">New Employee</a></li>
+		</ul>
+	</div>
+	<div id="notification-box" style="display: none;">
+		<p><span id="statusMessage" > Employee Added Successfully...</span></p>
+	</div>
+	<div class="container navright">
+			<div class="leaveDetails" style="display:none;">
+					<h3 class="navrgth3">Leave Balance Summary</h3>
+					<hr class="navrgthr">
+					<div ng-controller="leaveDetailsController" id="leaveDetails" >
+					<div class="highlight">
+				      	<table class="table table-striped table-hover">
+								<tr>
+									<th><h5><b>Leaves Applicable</b></h5></th>
+									<td>{{leaveDetails.tatalLeavesApplicable }}</td>
+								</tr>
+					  			<tr class="success">	
+					  				<th><h5><b>Leaves Applied</b></h5></th>
+					  				<td>{{ leaveDetails.tatalLeavesApplied }}</td>
+					  			</tr>
+					  			<tr>	
+					  				<th><h5><b>Leaves Cancelled</b></h5></th>
+					  				<td>{{ leaveDetails.tatalLeavesCancelled }}</td>
+					  			</tr>
+					  			<tr class="success">
+					  				<th><h5><b>Leave Balance</b></h5></th>
+					  				<td>{{ leaveDetails.tatalLeavesBalance }}</td>
+					  			</tr>
+					  			
+					  		</table>	
+				      </div>
+				     
+				      </div>
+				   	
+		    
+		    </div>
+		    <div class="applayLeave" style="display: none;">
+		    
+					<h3 class="navrgth3">Apply Leave</h3>
+					<hr class="navrgthr">
+					<div ng-controller="applyLeaveController">
+				    <div class="highlight">
+				    	<form name = "employeeForm" >
+					            <label for ="label" id ="labelFrom">From :</label>
+					            <input ng-model="leaveFromAppliedDate" ui-date id="datepickerFrom" />
+					            
+					            <label for ="label" id = "labelTo">To :</label>
+								  <input ng-model="leaveToAppliedDate" ui-date id="datepickerTo" />
+										  
+												 <br/><br/>
+					            
+					             <label >Type of Leave: </label>
+					            <input type="text" id = "leaveType"  ng-model="leaveType" placeholder="sick/casual Leave"/><br/>
+					            <label id = "reasonforLeave" >Reason for Leave:</label>
+					            <textarea id = "text" ng-model="reasonForApplyleave" placeholder="Type here"></textarea>
+					            <br/><br/>
+					
+					            <label >Approver Email-Id:</label>
+					            <input type="text" id = "leaveApproverEmail"  ng-model="leaveApproverEmail" placeholder="leaveApproverEmail"/><br/><br/>
+					            <button type = "submit" name="applyLeave" id = "applyLeave" class="btn btn-success" ng-click="submitLeave('<%= userId %>')">Submit Leave</button>
+					            <br/><br/><br/>
+					            
+					             Note**: All Fields are required.
+					            
+						      	 <p  ng-show="showSubmitleave">Your Leave application is submitted.</p>  
+						</form>
+								
+				    	<div  style="width: 400px;margin-left: 434px;margin-top: -298px;">
+			    			<button class="btn btn-primary" ng-click="getHolidays()" >Show Holidays</button>
+			    			<div  class = "closeLeaves"  ng-show="status" style="background-color: whitesmoke;margin-top: 7px;margin-right: 6px;"  >
+			    				<button type="button" class="close"  ng-click="closed()" style="margin-right: 9px;color: red;"> <span aria-hidden="true">×</span></button>
+					    		<table border = "2" style="width: 388px;border:2px solid #CCCCCC;margin-left: 3px;rowspan:4;colspan:6;">
+									<tr bgcolor="cccccc" style=" height:30px">
+									<th >Sl.No  </th>
+									<th > Date </th>
+									<th >   Day  </th>  
+								    <th > Festival </th>
+									</tr>
+									<tr ng-repeat = "holiday in holidayList">
+								
+									<td> {{holiday.slNo}} </td> 
+									<td> {{holiday.date}}  </td>
+									<td>  {{holiday.day}} </td>  
+									<td> {{holiday.festival}} </td>
+									</tr>
+								</table>
+							</div>
+			    		</div>
+			    	</div>
+		    	</div>
+			   
+		    </div>
+		    
+		     <div class="cancelLeave" style="display: none;">
+					<h3 class="navrgth3">Cancel Leave</h3>
+					<hr class="navrgthr">
+					<div ng-controller="cancelLeaveController" >
+					    <div class="highlight">
+					    			<form name = "employeeForm"> 
+					    				<label for ="label" id ="labelFrom">From :</label>
+							            <input ng-model="leaveFromAppliedDate" ui-date id="datepickerFrom1" />
+							            <label for ="label" id = "labelTo">To :</label>
+							            <input ng-model="leaveToAppliedDate" ui-date id="datepickerTo1"/>   
+							            <br/><br/>
+							             <label >Type of Leave Applied:</label>
+							            <input type="text" id = "leaveType"  ng-model="leaveType" placeholder="sick/casual Leave"/><br/>
+							            <label id = "reasonforCancelLeave" >Reason for Cancel Leave:</label>
+							            <textarea id = "text" ng-model="reasonForCancelleave" placeholder="Type here"></textarea>
+							            <br/><br/>
+							
+							            <label >Approver Email-Id:</label>
+							            <input type="text" id = "leaveApproverEmail"  ng-model="leaveApproverEmail" placeholder="leaveApproverEmail"/><br/><br/>
+							            <button type = "submit" name="cancelLeave" id = "cancelLeave" class="btn btn-success" ng-click="cancelLeave('<%= userId %>')">Cancel Leave</button>
+							            <br/><br/><br/>
+							             Note**: All Fields are required.
+								      	 <p  ng-show="showCancelLeave"> Your application for cancel Leave is submitted.</p>
+					    			</form>
+					    </div>
+				    </div>
+		    
+		    </div>
+		    <div class="approveLeave" style="display: none;">
+					<h3 class="navrgth3">Approve Leaves</h3>
+					<hr class="navrgthr">
+					<div ng-controller="ApproveLeaveController" id="approveLeave" >
+					    <div class="highlight">
+							<div ng-show="noLeaveRequests" ><h3>No Requests Found....</h3></div>
+					        <div ng-show="leaveRequests">
+						        <form class="navbar-form navbar-left" role="search">
+						        	<lable>Filter:</lable> 
+						        	<div class="form-group"><input type="text" ng-model="empNameFilter.empName" class="form-control"/></div>
+						         </form>
+						         <div class="leavereq" >
+						    			 <table class="table table-striped ">
+									        <thead>
+									            <tr>
+									                <th ng-click="doSort('empName')">Employee's name</th>
+									                <th ng-click="doSort('totalLeavesApplied')">No. of days</th>
+									                <th ng-click="doSort('fromDate')">From</th>
+									                <th ng-click="doSort('toDate')">To</th>
+									                <th ng-click="doSort('reasonForLeaveRequest')">Reason for leave</th>
+									                <th ng-click="doSort('leaveRequestType')">Request type</th>
+									                <th colspan="2">Action</th>
+									            </tr>
+									        </thead>
+									        <tbody>
+									            <tr ng-repeat="leave in leaves | filter:empNameFilter | orderBy:sortBy:reverse">
+									                <td><span ><img class='iconuser' src="/images/default-user-image.png"/></span><span>{{ leave.empName}}</span></td>
+									                <td><span>{{ leave.totalLeavesApplied }}</span</td>
+									                <td><span>{{ leave.leaveFromAppliedDate}}</span</td>
+									                <td><span>{{ leave.leaveToAppliedDate}}</span</td>
+									                <td><span>{{ leave.reasonForApplyleave}}</span></td>
+									                <td><span>{{ leave.leaveRequestType}}</span></td>
+									                <td><span><input type="submit" class="btn btn-success" ng-click="takeAction('approve', leave._id,leave.totalLeavesApplied)" value="approve"/></span>                     </td>
+									                <td><span><input type="submit" class="btn btn-danger"  ng-click="takeAction('cancel', leave._id,leave.totalLeavesApplied)" value="cancel"/></span></td>
+									            </tr>
+									        </tbody>
+									    </table>
+						    		</div>
+					    	</div>
+					    </div>
+				    </div>
+		    
+		    </div>
+			<div class= "newEmployee" style="display: none;" >
+					<div ng-controller="newEmpController" >
+						<h3 class="navrgth3">Feed New Employee</h3>
+						<hr class="navrgthr">
+						<div class="highlight">
+							<form name="myForm" id="myForm" class="form-horizontal" ng-submit="addEmployee(); myForm.$setPristine() " novalidate>
+								<div class="form-group " >
+						  			<lable class="col-sm-4 control-label">EmployeeId</lable>
+						  			<div class="col-sm-6 frmdiv"  ng-class="{ 'has-error' : myForm.employeeId.$invalid && !myForm.employeeId.$pristine }">
+						  			<input type="text" class="form-control" ng-model="employeeId" name="employeeId" placeholder="EmployeeId" ng-pattern="/^[AIN0-9]+$/" required />
+                                    <p ng-show="myForm.employeeId.$invalid && !myForm.employeeId.$pristine" class="help-block">Enter valid Employee ID(Ex:AIN001)</p>
+						  			</div>
+								</div><br>	
+								
+								<div class="form-group ">
+						  			<lable class="col-sm-4 control-label">EmployeeName</lable>
+						  			<div class="col-sm-6 frmdiv" ng-class="{ 'has-error' : myForm.employeeName.$invalid && !myForm.employeeName.$pristine }">
+						  			<input type="text" class="form-control" ng-model="employeeName" name="employeeName" placeholder="Employee Name" ng-pattern="/^[a-zA-z]+$/" required>
+                                    <p ng-show="myForm.employeeName.$invalid && !myForm.employeeName.$pristine" class="help-block">Enter valid Employee Name</p>
+						  			</div>
+								</div><br>
+								<div class="form-group ">
+						  			<lable class="col-sm-4 control-label">EmailId</lable>
+						  			<div class="col-sm-6 frmdiv" ng-class="{ 'has-error' : myForm.email.$invalid && !myForm.email.$pristine }">
+						  			<input type="email" class="form-control" ng-model="emailId" name="email" placeholder="Email Id" ng-pattern="/^[A-Za-z0-9._%+-]+@atmecs.com$/" required>
+                                    <p ng-show="myForm.email.$invalid && !myForm.email.$pristine" class="help-block">Enter a valid email.(example@atmecs.com)</p>
+						  			</div>
+								</div><br>
+								<div class="form-group ">
+						  			<lable class="col-sm-4 control-label">Designation</lable>
+						  			<div class="col-sm-6 frmdiv" ng-class="{ 'has-error' : myForm.designation.$invalid && !myForm.designation.$pristine }">
+						  			<input type="text" class="form-control" ng-model="designation" name="designation"  placeholder="Designation" ng-pattern="/^[a-zA-z]+$/" required>
+                                    <p ng-show="myForm.designation.$invalid && !myForm.designation.$pristine" class="help-block"> Enter valid Designation</p>
+						  			</div>
+								</div><br>
+								<div class="form-group ">
+						  			<lable class="col-sm-4 control-label">Total Leaves Applicable</lable>
+						  			<div class="col-sm-6 frmdiv" ng-class="{ 'has-error' : myForm.totalLeavesApplicable.$invalid && !myForm.totalLeavesApplicable.$pristine }">
+						  			<input type="number" class="form-control" ng-model="totalLeavesApplicable" name="totalLeavesApplicable" min="0" placeholder="Total leaves" ng-pattern="/^[0-9]+$/" required>
+                                    <p ng-show="myForm.totalLeavesApplicable.$invalid && !myForm.totalLeavesApplicable.$pristine" class="help-block"> Enter valid TotalLeavesApplicable </p>
+						  			</div>
+								</div><br>
+								<div class="form-group ">
+						  			<lable class="col-sm-4 control-label">Manager EmailId</lable>
+						  			<div class="col-sm-6 frmdiv" ng-class="{ 'has-error' : myForm.managerEmailId.$invalid && !myForm.managerEmailId.$pristine }">
+						  			<input type="email" class="form-control" ng-model="managerEmailId" name="managerEmailId"  placeholder="Manager EmailId" ng-pattern="/^[A-Za-z0-9._%+-]+@atmecs.com$/"required>
+						  			<p ng-show="myForm.managerEmailId.$invalid && !myForm.managerEmailId.$pristine" class="help-block"> manager EmailId is required.</p>
+						  			</div>
+								</div><br>
+						        <button class="btn btn-primary" ng-disabled="myForm.$invalid" style="margin-left: 46%;">Add Employee</button>
+					    	
+					    	</form>
+					    </div>
+				    </div>
+		    </div>
+		    
+	</div>
+	<div class="container footer">
+	
+	
+	</div>
+  </body>
+  </html>
