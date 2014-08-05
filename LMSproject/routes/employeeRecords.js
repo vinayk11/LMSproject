@@ -27,18 +27,30 @@ exports.addEmployee = function(req, callback) {
 			
 			};
 			var info= {};
+			
+			
 			db.collection('employeeRecords', function(err, collection) {
+				collection.findOne({ $or: [{empId:employee.empId}, {empEmail:employee.empEmail}]},function(err, empRecords) {
+					if(empRecords) {
+						
+						callback(null,"Employee already exists");
+					} 
+					else {
 				collection.insert(employee,function() {
+					console.log("employeerecords");
 			          callback(null, employee);
-				});
 				
+						});
+					}
+				
+			});
 			});
 			
 	
 	};
 exports.submitLeave = function(req, callback) {
 			var insertData=JSON.stringify(req[1]);
-			var userEmailId=req[0];// get from session.. Vinay integaration.
+			var userEmailId=req[0];
 		    db.collection('employeeRecords', function(err, collection) {
 		        collection.findOne({empEmail: userEmailId},function(err, empRecords) {
 		        	if (err) {
@@ -78,10 +90,11 @@ exports.holidayList = function(req, callback) {
 				});
 			});
 	};
+	
 
 exports.cancelLeave = function(req, callback) {
 			var insertData=JSON.stringify(req[1]);
-			var userEmailId=req[0];// get from session.. Vinay integaration.
+			var userEmailId=req[0];
 		    db.collection('employeeRecords', function(err, collection) {
 		        collection.findOne({empEmail: userEmailId},function(err, empRecords) {
 		        	if (err) {
@@ -109,18 +122,15 @@ exports.cancelLeave = function(req, callback) {
 	};
 
 exports.getLeaveDetails = function(req,callback) {
-	
 			var email= req;
-			console.log("in sdafa"+email);
-			db.collection('employeeRecords', function(err, collection) {
+ 			db.collection('employeeRecords', function(err, collection) {
 			collection.find({"empEmail":email}).toArray(function(err, leaveStatus) {
 				if(err) { callback(err);}
 				else {
 					var empId=leaveStatus[0]._id.toString();
 					var leaveDetails={};
 					leaveDetails.tatalLeavesApplicable=leaveStatus[0].tatalLeavesApplicable;
-					//empId=empId.toString();
-					console.log(empId);
+					leaveDetails.designation=leaveStatus[0].employeeDesignation;
 					db.collection("employeeLeaveRequest", function(err, collection) {
 						collection.find({empId:empId}).toArray(function(err, result) {
 							 if (err) {
@@ -139,18 +149,12 @@ exports.getLeaveDetails = function(req,callback) {
 						        				{
 						        				leavesCancelled += result[index].totalLeavesApplied;
 						        				}
-						        		console.log(result[index]);
 						        		}
 						        	leavesBalance = leaveDetails.tatalLeavesApplicable - leavesApplied;
 						        	
 						        	leaveDetails.tatalLeavesApplied = leavesApplied;
 						        	leaveDetails.tatalLeavesCancelled = leavesCancelled;
 						        	leaveDetails.tatalLeavesBalance = leavesBalance;
-						        	console.log("applied"+leaveDetails.tatalLeavesApplied);
-						        	console.log("canceled"+leaveDetails.tatalLeavesCancelled);
-						        	console.log("balance"+leaveDetails.tatalLeavesBalance);
-						        	console.log("total"+leaveDetails.tatalLeavesApplicable);
-						        	
 									callback(null,leaveDetails);
 						        }
 						});
@@ -164,12 +168,12 @@ exports.getLeaveDetails = function(req,callback) {
 
 	};
 exports.findEmployeesLeave = function(req, callback) {
-
 		    db.collection("employeeLeaveRequest", function(err, collection) {
-		      collection.find({leaveActionStatus : "pending"}).sort({order_num: 1}).toArray(function(err, result) {
+		    	collection.find({leaveActionStatus : "pending", leaveApproverEmail:{ $in :[req.emailId]}}).sort({order_num: 1}).toArray(function(err, result) {
 		        if (err) {
 		          throw err;
 		        } else {
+		        	console.log("result"+JSON.stringify(result[0]));
 		        	if(result.length !=0)
 		        		{
 			              var j=0;
@@ -179,6 +183,7 @@ exports.findEmployeesLeave = function(req, callback) {
 			                        if (err) {
 			                            throw err;
 			                        } else {
+			                        	console.log("in data"+data[0]);
 			                            result[j]['empName']= data[0].empName;
 			                            j++;
 			                        }
@@ -197,8 +202,6 @@ exports.findEmployeesLeave = function(req, callback) {
 		      });
 		    });
 	};
-
-	
 exports.leaveAction=function(req, callback) {
 		    var id=req.id;
 		    var action=req.action;

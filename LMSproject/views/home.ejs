@@ -4,13 +4,13 @@
     <title> Leave management System</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"/>
-     <link rel="stylesheet" href="stylesheets/jquery-ui.css">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="/js/bootstrap.min.js"></script>
-	<script src="/js/employeeController.js"></script>
-	<script src="js/jquery.js"></script>
-  	<script src="js/jquery-ui.js"></script>
+    <link rel="stylesheet" href="stylesheets/jquery-ui.css">
+    <script src="scripts/jquery-1.11.1.js"></script>
+    <script src="scripts/jquery-ui.js"></script>
+    <script src="/scripts/angular.js"></script>
+	<script src="/scripts/bootstrap.min.js"></script>
+	<script src="/scripts/employeeController.js"></script>
+  
 	<script>
 	var userEmail = "<%=  userId %>";
 		$(function() {
@@ -42,11 +42,11 @@
 	
 	<div class="container navleft" ng-controller="navController">
 		<ul class="nav nav-pills nav-stacked navul">
-		  <li class="active ld"><a href="#">Leave Details</a></li>
-		  <li class="libgclr al"><a href="#">Apply Leave</a></li>
-		  <li class="libgclr cl"><a href="#">Cancel Leave</a></li>
-		  <li class="libgclr apl"><a href="#">Approve Leave</a></li>
-		  <li class="libgclr ne"><a href="#">New Employee</a></li>
+		  <li class="active ld" ng-show="leaveNav"><a href="#">Leave Details</a></li>
+		  <li class="libgclr al" ng-show="applyNav"><a href="#">Apply Leave</a></li>
+		  <li class="libgclr cl" ng-show="cancelNav"><a href="#">Cancel Leave</a></li>
+		  <li class="libgclr apl" ng-show="approveNav"><a href="#">Approve Leave</a></li>
+		  <li class="libgclr ne" ng-show="employeeNav"><a href="#">New Employee</a></li>
 		</ul>
 	</div>
 	<div id="notification-box" style="display: none;">
@@ -171,7 +171,7 @@
 		    <div class="approveLeave" style="display: none;">
 					<h3 class="navrgth3">Approve Leaves</h3>
 					<hr class="navrgthr">
-					<div ng-controller="ApproveLeaveController" id="approveLeave" >
+					<div ng-controller="approveLeaveController" id="approveLeave" >
 					    <div class="highlight">
 							<div ng-show="noLeaveRequests" ><h3>No Requests Found....</h3></div>
 					        <div ng-show="leaveRequests">
@@ -207,6 +207,8 @@
 									    </table>
 						    		</div>
 					    	</div>
+					    	<p  ng-show="showApproveLeave">Leave successfully approved.</p>
+							<p  ng-show="showCancelLeave">Leave successfully cancelled.</p>
 					    </div>
 				    </div>
 		    
@@ -216,8 +218,13 @@
 						<h3 class="navrgth3">Feed New Employee</h3>
 						<hr class="navrgthr">
 						<div class="highlight">
+						<div class="alert alert-warning fade in calert" role="alert" ng-show="emp">
+					      <button type="button" class="close" ng-click="closeAlert();" ><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					      <center><strong>Employee Already Exists</strong> </center>
+					    </div>
+							
 							<form name="myForm" id="myForm" class="form-horizontal" ng-submit="addEmployee(); myForm.$setPristine() " novalidate>
-								<div class="form-group " >
+								<div class="form-group "style="margin-top: 17px;" >
 						  			<lable class="col-sm-4 control-label">EmployeeId</lable>
 						  			<div class="col-sm-6 frmdiv"  ng-class="{ 'has-error' : myForm.employeeId.$invalid && !myForm.employeeId.$pristine }">
 						  			<input type="text" class="form-control" ng-model="employeeId" name="employeeId" placeholder="EmployeeId" ng-pattern="/^[AIN0-9]+$/" required />

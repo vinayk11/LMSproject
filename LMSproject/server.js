@@ -9,7 +9,6 @@ var express = require('express'),
    cookieParser = require( "cookie-parser" ),
    session = require('express-session'),
    RedisStore = require('connect-redis')(session),
-   //redisStore = require('connect-redis')(express),
    passport = require('passport'),
    googleStrategy = require('passport-google-oauth').OAuth2Strategy,
    clientID = '888479721397-aeuk0osmgfe92998srsevoo9ies6rese.apps.googleusercontent.com',
@@ -20,7 +19,6 @@ var express = require('express'),
 	var smtpTransport= nodemailer.createTransport("SMTP",{
     service: "Gmail",
     auth: {
-    	
         user: "vinaykumar.korupolu@atmecs.com",
         pass: "password"
     }
@@ -29,7 +27,6 @@ var express = require('express'),
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
-//app.use(express.favicon());
 app.use(express.cookieParser());
 app.use(express.session({ store: new RedisStore({
 	  host:'127.0.0.1',
@@ -43,7 +40,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 var mailOptions = {
 	    from: 'Fred Foo ✔ <foo@blurdybloop.com>', // sender address
@@ -70,7 +66,6 @@ passport.use(new googleStrategy({
 			// User.findOne won't fire until we have all our data back from Google
 			if(profile._json.hd === "atmecs.com"){
 			process.nextTick(function() {
-				
 				userProfile.email= profile.emails[0].value;
 				accessToken=accessToken;
 				done(null, profile);
@@ -79,10 +74,8 @@ passport.use(new googleStrategy({
 			}
 			else
 				{
-				
 			        // fail        
 			        done(new Error("Invalid host domain"));
-			    
 				}
 		}));
 
@@ -106,12 +99,8 @@ app.get('/oauth2callback',
 app.get('/', routes.index);
 
 app.get('/home', function(req, res, next) {
-	
-		var user_id= userProfile.email;
-		//employeeInfo.getLeaveDetails(user_id,function(err,leaveStatus){
-			//console.log("levestatus"+JSON.Stringfy(leaveStatus));
-			res.render('home.ejs',{userId :user_id });
-		//});
+			userId=userProfile.email;
+			res.render('home.ejs',{userId :userId});
 	});
 
 app.post('/getLeaveDetails',function(req,res){
@@ -120,9 +109,6 @@ app.post('/getLeaveDetails',function(req,res){
 		res.json(leaveDetails);
 		
 	});
-	/*var hello={};
-	hello.name="hello";
-	res.json(hello);*/
 });
 app.get('/holidayList',function(req,res){
 	employeeInfo.holidayList(req,function(err,items){
@@ -145,6 +131,7 @@ app.post('/cancelLeave', function(req,res) {
 });
 
 app.get('/emp-leaves', function(req, res) {
+	req.emailId=userProfile.email;
 	employeeInfo.findEmployeesLeave(req,function(err,result){
 		res.json(result);
 		
@@ -168,21 +155,6 @@ app.get('/logout', function(req, res) {
 		req.logout();
 		res.redirect('/');
 	});
-
-function isLoggedIn(req, res, next) {
-	// if user is authenticated in the session, carry on
-	if (req.isAuthenticated())
-		{
-		return next();
-		}
-	else
-		{
-		console.log("is loggedin");
-		return next();
-		}
-	
-	
-	}
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
